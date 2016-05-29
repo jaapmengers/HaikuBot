@@ -1,0 +1,12 @@
+{
+  "name": "haikubot",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "botkit": "^0.2.0",
+    "underscore": "^1.8.3"
+  }
+}
