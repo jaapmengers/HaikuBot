@@ -35,31 +35,44 @@ function formatMessage(wordsPerSentence){
 }
 
 function expandMessage(msg){
-	return msg.replace(/[^A-Za-z\s]/g,'').split(' ').filter(x => !!x);
+	return msg.split(/\s+/);
 }
 
 function getSyllablesPerWord(words) {
 	return words.map(getSyllables);
 }
 
+function log(msg) {
+  bot.say(
+  {
+    text: msg,
+    channel: 'C1CPAD96Z'
+  }
+);
+}
+
 function tryAndMakeHaiku(words) {
 	const syllablesPerWord = getSyllablesPerWord(words);
 	const totalSyllables = syllablesPerWord.reduce((prev, cur) => prev + cur.syllables, 0);
 
-	if(totalSyllables != 17) {
-		return undefined;
-	}
+  if(totalSyllables == 17){ 
+  	try {
+  		[firstSentence, restA] = takeNSyllablesFromList(syllablesPerWord, 5);
+  		[secondSentence, restB] = takeNSyllablesFromList(restA, 7);
+  		[thirdSentence, restC] = takeNSyllablesFromList(restB, 5);
 
-	try {
-		[firstSentence, restA] = takeNSyllablesFromList(syllablesPerWord, 5);
-		[secondSentence, restB] = takeNSyllablesFromList(restA, 7);
-		[thirdSentence, restC] = takeNSyllablesFromList(restB, 5);
-
-		return [firstSentence, secondSentence, thirdSentence];
-	} catch(err) {
-		console.log(err);
-		return undefined;		
-	}
+  		return [firstSentence, secondSentence, thirdSentence];
+  	} catch(err) {
+  		console.log(err);
+  		return undefined;		
+  	}
+  } else {
+    if (totalSyllables > 12 && totalSyllables < 20) {
+      const msg = syllablesPerWord.map(x => `${x.word}: ${x.syllables}`).join("\n")
+      log(`\`\`\`Debug:\n${msg}\`\`\``);
+    }
+    return undefined;
+  }
 }
 
 function takeNSyllablesFromList(list, n) {
@@ -84,5 +97,10 @@ function takeNSyllablesFromList(list, n) {
 }
 
 function getSyllables(word){
-	return { word: word, syllables: Hyphenator.Hyphenator.hyphenate_word(word).length };
+
+	if(/:.*:/.test(word)){
+		return { word: word, syllables: 1 };	
+	} else {
+		return { word: word, syllables: Hyphenator.Hyphenator.hyphenate_word(word.replace(/[^A-Za-z\s]/g,'')).length };
+	}
 }
