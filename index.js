@@ -45,7 +45,7 @@ function getSyllablesPerWord(words) {
 function log(msg) {
   bot.say(
   {
-    text: msg,
+    text: `\`\`\`Debug: ${msg}\`\`\``,
     channel: 'C1CPAD96Z'
   }
 );
@@ -63,16 +63,20 @@ function tryAndMakeHaiku(words) {
 
   		return [firstSentence, secondSentence, thirdSentence];
   	} catch(err) {
-  		console.log(err);
+      log(`17 syllables, but can't create Haiku while still respecting word boundaries: ${formatMessage(syllablesPerWord, totalSyllables)}`);
   		return undefined;		
   	}
   } else {
     if (totalSyllables > 12 && totalSyllables < 20) {
-      const msg = syllablesPerWord.map(x => x.syllables.join("-")).join(" ")
-      log(`\`\`\`Debug: ${msg}\`\`\``);
+      log(formatMessage(syllablesPerWord, totalSyllables));
     }
     return undefined;
   }
+}
+
+function formatMessage(syllablesPerWord, totalSyllables) {
+  const msg = syllablesPerWord.map(x => x.syllables.join("-")).join(" ");
+  return `${msg} (total: ${totalSyllables})`;
 }
 
 function takeNSyllablesFromList(list, n) {
@@ -87,8 +91,6 @@ function takeNSyllablesFromList(list, n) {
 		} else if(sum == n){
 			return [newSentence, rest];
 		} else if(sum > n){
-			console.log(list, sum, sentence);
-
 			throw `Can't form a sentence with exactly ${n} syllables from these words`;
 		}
 	}
