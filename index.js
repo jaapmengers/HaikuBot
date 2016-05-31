@@ -53,7 +53,7 @@ function log(msg) {
 
 function tryAndMakeHaiku(words) {
 	const syllablesPerWord = getSyllablesPerWord(words);
-	const totalSyllables = syllablesPerWord.reduce((prev, cur) => prev + cur.syllables, 0);
+	const totalSyllables = syllablesPerWord.reduce((prev, cur) => prev + cur.syllables.length, 0);
 
   if(totalSyllables == 17){ 
   	try {
@@ -68,8 +68,8 @@ function tryAndMakeHaiku(words) {
   	}
   } else {
     if (totalSyllables > 12 && totalSyllables < 20) {
-      const msg = syllablesPerWord.map(x => `${x.word}: ${x.syllables}`).join("\n")
-      log(`\`\`\`Debug:\n${msg}\`\`\``);
+      const msg = syllablesPerWord.map(x => x.syllables.join("-")).join(" ")
+      log(`\`\`\`Debug: ${msg}\`\`\``);
     }
     return undefined;
   }
@@ -79,7 +79,7 @@ function takeNSyllablesFromList(list, n) {
 	function recurse(l, sentence, syllableCount) {
 		[a, ...rest] = l;
 
-		const sum = syllableCount + a.syllables;
+		const sum = syllableCount + a.syllables.length;
 		const newSentence = sentence.concat([a.word]);
 
 		if(sum < n) {
@@ -99,8 +99,8 @@ function takeNSyllablesFromList(list, n) {
 function getSyllables(word){
 
 	if(/:.*:/.test(word)){
-		return { word: word, syllables: 1 };	
+		return { word: word, syllables: [word] };	
 	} else {
-		return { word: word, syllables: Hyphenator.Hyphenator.hyphenate_word(word.replace(/[^A-Za-z\s]/g,'')).length };
+		return { word: word, syllables: Hyphenator.Hyphenator.hyphenate_word(word.replace(/[^A-Za-z\s]/g,'')) };
 	}
 }
