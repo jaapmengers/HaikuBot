@@ -39,7 +39,7 @@ function expandMessage(msg){
 }
 
 function getSyllablesPerWord(words) {
-	return words.map(getSyllables);
+  return words.map(getSyllables);
 }
 
 function log(msg) {
@@ -63,18 +63,18 @@ function tryAndMakeHaiku(words) {
 
   		return [firstSentence, secondSentence, thirdSentence];
   	} catch(err) {
-      log(`17 syllables, but can't create Haiku while still respecting word boundaries: ${formatMessage(syllablesPerWord, totalSyllables)}`);
+      log(`17 syllables, but can't create Haiku while still respecting word boundaries: ${formatLogMessage(syllablesPerWord, totalSyllables)}`);
   		return undefined;		
   	}
   } else {
     if (totalSyllables > 12 && totalSyllables < 20) {
-      log(formatMessage(syllablesPerWord, totalSyllables));
+      log(formatLogMessage(syllablesPerWord, totalSyllables));
     }
     return undefined;
   }
 }
 
-function formatMessage(syllablesPerWord, totalSyllables) {
+function formatLogMessage(syllablesPerWord, totalSyllables) {
   const msg = syllablesPerWord.map(x => x.syllables.join("-")).join(" ");
   return `${msg} (total: ${totalSyllables})`;
 }
@@ -99,7 +99,6 @@ function takeNSyllablesFromList(list, n) {
 }
 
 function getSyllables(word){
-
 	if(/:.*:/.test(word)){
 		return { word: word, syllables: [word] };	
 	} else {
