@@ -105,7 +105,7 @@ function getSyllables(word){
 	}
 }
 
-const vowelBlocks = /a(?:ai?|e|u|y)?|e(?:eu?|i|u|y)?|i(?:eu?)?|o(?:ei?|i|oi?|ui?|y)?|u(?:e|i|u|y)?|y[aeiou]*/gi;
+const vowelBlocks = /a(?:ai?|e|i|u|y)?|e(?:eu?|i|u|y)?|i(?:eu?)?|o(?:ei?|i|oi?|ui?|y)?|u(?:e|i|u|y)?|y[aeiou]*/gi;
 
 function pseudoSyllables(s) {
 	const vowels = s.match(vowelBlocks) || [];
