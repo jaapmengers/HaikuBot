@@ -102,6 +102,16 @@ function getSyllables(word){
 	if(/:.*:/.test(word)){
 		return { word: word, syllables: [word] };	
 	} else {
-		return { word: word, syllables: Hyphenator.Hyphenator.hyphenate_word(word.replace(/[^A-Za-z\s]/g,'')) };
+		return { word: word, syllables: pseudoSyllables(word.replace(/[^A-Za-z\s]/g,'')) };
 	}
+}
+
+var vowelBlocks = /a(?:ai?|e|u|y)?|e(?:eu?|i|u|y)?|i(?:eu?)?|o(?:ei?|i|oi?|ui?|y)?|u(?:e|i|u|y)?|y[aeiou]*/gi;
+
+function pseudoSyllables(s) {
+	var vowels = s.match(vowelBlocks);
+	var consonants = s.split(vowelBlocks);
+	var syllables = vowels.map((v, i) => v + consonants[i + 1]);
+	syllables[0] = consonants[0] + syllables[0];
+	return syllables;
 }
