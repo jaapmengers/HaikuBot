@@ -14,20 +14,24 @@ const bot = controller.spawn({
 
 bot.startRTM();
 
-controller.on('ambient', function(bot,message){
-	if(message.text){
-		const words = expandMessage(message.text);
-		const possibleHaiku = tryAndMakeHaiku(words);
+try {
+	controller.on('ambient', function(bot,message){
+		if(message.text){
+			const words = expandMessage(message.text);
+			const possibleHaiku = tryAndMakeHaiku(words);
 
-		if(possibleHaiku){
-			bot.reply(message,{
-		      text: `>>>${formatMessage(possibleHaiku)}`,
-		      username: "HaikuBot",
-		      icon_emoji: ":writing_hand:",
-		    });
+			if(possibleHaiku){
+				bot.reply(message,{
+			      text: `>>>${formatMessage(possibleHaiku)}`,
+			      username: "HaikuBot",
+			      icon_emoji: ":writing_hand:",
+			    });
+			}
 		}
-	}
-});
+	});
+} catch(err){
+	console.error('Something failed', err);
+}
 
 function formatMessage(wordsPerSentence){
 	return wordsPerSentence.map(x => x.join(' ')).join('\n');
