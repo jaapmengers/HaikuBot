@@ -1,4 +1,5 @@
 const Botkit = require('botkit');
+const Promise = require('bluebird');
 var _ = require('underscore');
 const controller = Botkit.slackbot();
 
@@ -11,6 +12,9 @@ if(!token){
 const bot = controller.spawn({
   token: token
 });
+
+const channelInfo = Promise.promisify(bot.api.channels.info);
+const userInfo = Promise.promisify(bot.api.users.info);
 
 bot.startRTM();
 
@@ -25,12 +29,28 @@ try {
 			      text: `>>>${formatMessage(possibleHaiku)}`,
 			      username: "HaikuBot",
 			      icon_emoji: ":writing_hand:",
-			    });
+			    }, logSuccesfulHaiku(message));
 			}
 		}
 	});
 } catch(err){
 	console.error('Something failed', err);
+}
+
+function logSuccesfulHaiku(originalMsg) {
+	return (err, haikuMsg) => {
+		if(!err) {
+			const userPromise = userInfo({user: originalMsg.user});
+			const channelPromise = channelInfo({ channel: haikuMsg.channel });
+
+			Promise.all([userPromise, channelPromise]).then(x => {
+				const messageId = haikuMsg.ts.replace('.', '');
+				const link = `https://q42.slack.com/archives/${x[1].channel.name}/p${messageId}`
+
+				log(`Haiku door ${x[0].user.name} in ${x[1].channel.name}.\n${link}`)
+			});
+		}
+	}
 }
 
 function formatMessage(wordsPerSentence){
@@ -45,20 +65,22 @@ function getSyllablesPerWord(words) {
   return words.map(getSyllables);
 }
 
+function debug(msg) {
+	log(`\`\`\`Debug: ${msg}\`\`\``);
+}
+
 function log(msg) {
-  bot.say(
-  {
-    text: `\`\`\`Debug: ${msg}\`\`\``,
+  bot.say({
+    text: msg,
     channel: 'C1CPAD96Z'
-  }
-);
+  });
 }
 
 function tryAndMakeHaiku(words) {
 	const syllablesPerWord = getSyllablesPerWord(words);
 	const totalSyllables = syllablesPerWord.reduce((prev, cur) => prev + cur.syllables.length, 0);
 
-  if(totalSyllables == 17){ 
+  if(totalSyllables == 17){
   	try {
   		[firstSentence, restA] = takeNSyllablesFromList(syllablesPerWord, 5);
   		[secondSentence, restB] = takeNSyllablesFromList(restA, 7);
@@ -66,12 +88,12 @@ function tryAndMakeHaiku(words) {
 
   		return [firstSentence, secondSentence, thirdSentence];
   	} catch(err) {
-      log(`17 syllables, but can't create Haiku while still respecting word boundaries: ${formatLogMessage(syllablesPerWord, totalSyllables)}`);
-  		return undefined;		
+      debug(`17 syllables, but can't create Haiku while still respecting word boundaries: ${formatLogMessage(syllablesPerWord, totalSyllables)}`);
+  		return undefined;
   	}
   } else {
     if (totalSyllables > 12 && totalSyllables < 20) {
-      log(formatLogMessage(syllablesPerWord, totalSyllables));
+      debug(formatLogMessage(syllablesPerWord, totalSyllables));
     }
     return undefined;
   }
@@ -103,7 +125,7 @@ function takeNSyllablesFromList(list, n) {
 
 function getSyllables(word){
 	if(/:.*:/.test(word)){
-		return { word: word, syllables: [word] };	
+		return { word: word, syllables: [word] };
 	} else {
 		return { word: word, syllables: pseudoSyllables(word.replace(/[^A-Za-z\s]/g,'')) };
 	}
