@@ -1,3 +1,5 @@
+var express = require('express')
+var app = express()
 const Botkit = require('botkit');
 var _ = require('underscore');
 const controller = Botkit.slackbot();
@@ -54,7 +56,7 @@ function tryAndMakeHaiku(words) {
 	const syllablesPerWord = getSyllablesPerWord(words);
 	const totalSyllables = syllablesPerWord.reduce((prev, cur) => prev + cur.syllables.length, 0);
 
-  if(totalSyllables == 17){ 
+  if(totalSyllables == 17){
   	try {
   		[firstSentence, restA] = takeNSyllablesFromList(syllablesPerWord, 5);
   		[secondSentence, restB] = takeNSyllablesFromList(restA, 7);
@@ -63,7 +65,7 @@ function tryAndMakeHaiku(words) {
   		return [firstSentence, secondSentence, thirdSentence];
   	} catch(err) {
       log(`17 syllables, but can't create Haiku while still respecting word boundaries: ${formatLogMessage(syllablesPerWord, totalSyllables)}`);
-  		return undefined;		
+  		return undefined;
   	}
   } else {
     if (totalSyllables > 12 && totalSyllables < 20) {
@@ -99,7 +101,7 @@ function takeNSyllablesFromList(list, n) {
 
 function getSyllables(word){
 	if(/:.*:/.test(word)){
-		return { word: word, syllables: [word] };	
+		return { word: word, syllables: [word] };
 	} else {
 		return { word: word, syllables: pseudoSyllables(word.replace(/[^A-Za-z\s]/g,'')) };
 	}
@@ -114,3 +116,11 @@ function pseudoSyllables(s) {
 	syllables[0] = consonants[0] + syllables[0];
 	return syllables;
 }
+
+app.get('/', function (req, res) {
+  res.send('ping')
+});
+
+app.listen(process.env.PORT, function () {
+  console.log(`Example app listening on port ${process.env.PORT}!`)
+})

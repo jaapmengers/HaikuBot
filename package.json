@@ -6,10 +6,11 @@
   "author": "",
   "license": "ISC",
   "scripts": {
-    "start": "node index.js"  
+    "start": "node index.js"
   },
   "dependencies": {
     "botkit": "^0.2.0",
+    "express": "^4.15.5",
     "underscore": "^1.8.3"
   }
 }
