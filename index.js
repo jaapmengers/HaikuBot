@@ -1,6 +1,7 @@
 var express = require('express')
 var app = express()
 const Botkit = require('botkit');
+const Promise = require('bluebird');
 var _ = require('underscore');
 const controller = Botkit.slackbot();
 
@@ -14,22 +15,45 @@ const bot = controller.spawn({
   token: token
 });
 
+const channelInfo = Promise.promisify(bot.api.channels.info);
+const userInfo = Promise.promisify(bot.api.users.info);
+
 bot.startRTM();
 
-controller.on('ambient', function(bot,message){
-	if(message.text){
-		const words = expandMessage(message.text);
-		const possibleHaiku = tryAndMakeHaiku(words);
+try {
+	controller.on('ambient', function(bot,message){
+		if(message.text){
+			const words = expandMessage(message.text);
+			const possibleHaiku = tryAndMakeHaiku(words);
 
-		if(possibleHaiku){
-			bot.reply(message,{
-		      text: `>>>${formatMessage(possibleHaiku)}`,
-		      username: "HaikuBot",
-		      icon_emoji: ":writing_hand:",
-		    });
+			if(possibleHaiku){
+				bot.reply(message,{
+			      text: `>>>${formatMessage(possibleHaiku)}`,
+			      username: "HaikuBot",
+			      icon_emoji: ":writing_hand:",
+			    }, logSuccesfulHaiku(message));
+			}
+		}
+	});
+} catch(err){
+	console.error('Something failed', err);
+}
+
+function logSuccesfulHaiku(originalMsg) {
+	return (err, haikuMsg) => {
+		if(!err) {
+			const userPromise = userInfo({user: originalMsg.user});
+			const channelPromise = channelInfo({ channel: haikuMsg.channel });
+
+			Promise.all([userPromise, channelPromise]).then(x => {
+				const messageId = haikuMsg.ts.replace('.', '');
+				const link = `https://q42.slack.com/archives/${x[1].channel.name}/p${messageId}`
+
+				log(`Haiku door ${x[0].user.name} in ${x[1].channel.name}.\n${link}`)
+			});
 		}
 	}
-});
+}
 
 function formatMessage(wordsPerSentence){
 	return wordsPerSentence.map(x => x.join(' ')).join('\n');
@@ -43,13 +67,15 @@ function getSyllablesPerWord(words) {
   return words.map(getSyllables);
 }
 
+function debug(msg) {
+	log(`\`\`\`Debug: ${msg}\`\`\``);
+}
+
 function log(msg) {
-  bot.say(
-  {
-    text: `\`\`\`Debug: ${msg}\`\`\``,
+  bot.say({
+    text: msg,
     channel: 'C1CPAD96Z'
-  }
-);
+  });
 }
 
 function tryAndMakeHaiku(words) {
@@ -64,12 +90,13 @@ function tryAndMakeHaiku(words) {
 
   		return [firstSentence, secondSentence, thirdSentence];
   	} catch(err) {
-      log(`17 syllables, but can't create Haiku while still respecting word boundaries: ${formatLogMessage(syllablesPerWord, totalSyllables)}`);
+
+      debug(`17 syllables, but can't create Haiku while still respecting word boundaries: ${formatLogMessage(syllablesPerWord, totalSyllables)}`);
   		return undefined;
   	}
   } else {
     if (totalSyllables > 12 && totalSyllables < 20) {
-      log(formatLogMessage(syllablesPerWord, totalSyllables));
+      debug(formatLogMessage(syllablesPerWord, totalSyllables));
     }
     return undefined;
   }
