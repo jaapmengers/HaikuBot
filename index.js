@@ -31,7 +31,14 @@ try {
 			      text: `>>>${formatMessage(possibleHaiku)}`,
 			      username: "HaikuBot",
 			      icon_emoji: ":writing_hand:",
-			    }, logSuccesfulHaiku(message));
+			    }, function(err, haikuMsg) {
+						if(err) {
+							return;
+						}
+
+						logSuccesfulHaiku(haikuMsg, message);
+						addReaction(haikuMsg);
+					});
 			}
 		}
 	});
@@ -39,20 +46,24 @@ try {
 	console.error('Something failed', err);
 }
 
-function logSuccesfulHaiku(originalMsg) {
-	return (err, haikuMsg) => {
-		if(!err) {
-			const userPromise = userInfo({user: originalMsg.user});
-			const channelPromise = channelInfo({ channel: haikuMsg.channel });
+function addReaction(message) {
+	bot.api.reactions.add({
+		timestamp: message.ts,
+		channel: message.channel,
+		name: 'cherry_blossom',
+	});
+}
 
-			Promise.all([userPromise, channelPromise]).then(x => {
-				const messageId = haikuMsg.ts.replace('.', '');
-				const link = `https://q42.slack.com/archives/${x[1].channel.name}/p${messageId}`
+function logSuccesfulHaiku(haikuMsg, originalMsg) {
+	const userPromise = userInfo({user: originalMsg.user});
+	const channelPromise = channelInfo({ channel: haikuMsg.channel });
 
-				log(`Haiku door ${x[0].user.name} in ${x[1].channel.name}.\n${link}`)
-			});
-		}
-	}
+	Promise.all([userPromise, channelPromise]).then(x => {
+		const messageId = haikuMsg.ts.replace('.', '');
+		const link = `https://q42.slack.com/archives/${x[1].channel.name}/p${messageId}`
+
+		log(`Haiku door ${x[0].user.name} in ${x[1].channel.name}.\n${link}`)
+	});
 }
 
 function formatMessage(wordsPerSentence){
