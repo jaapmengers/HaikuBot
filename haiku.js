@@ -1,8 +1,8 @@
-function formatMessage(wordsPerSentence){
-  return wordsPerSentence.map(x => x.join(' ')).join('\n');
+function formatMessage(wordsPerSentence) {
+  return wordsPerSentence.map(x => x.join(" ")).join("\n");
 }
 
-function expandMessage(msg){
+function expandMessage(msg) {
   return msg.split(/\s+/).filter(x => x.length > 0 && x != "\u200B");
 }
 
@@ -10,25 +10,30 @@ function getSyllablesPerWord(words) {
   return words.map(getSyllables);
 }
 
-function tryAndMakeHaiku(words, log) {
+function tryAndMakeHaiku(words, debug) {
+  if (!debug) { debug = function () { }; }
   const syllablesPerWord = getSyllablesPerWord(words);
   const totalSyllables = syllablesPerWord.reduce((prev, cur) => prev + cur.syllables.length, 0);
 
-  if(totalSyllables == 17){
+  if (totalSyllables == 17) {
     try {
       [firstSentence, restA] = takeNSyllablesFromList(syllablesPerWord, 5);
       [secondSentence, restB] = takeNSyllablesFromList(restA, 7);
       [thirdSentence, restC] = takeNSyllablesFromList(restB, 5);
 
       return [firstSentence, secondSentence, thirdSentence];
-    } catch(err) {
-
-      log(`17 syllables, but can't create Haiku while still respecting word boundaries: ${formatLogMessage(syllablesPerWord, totalSyllables)}`);
+    } catch (err) {
+      debug(
+        `17 syllables, but can't create Haiku while still respecting word boundaries: ${formatLogMessage(
+          syllablesPerWord,
+          totalSyllables
+        )}`
+      );
       return undefined;
     }
   } else {
     if (totalSyllables > 12 && totalSyllables < 20) {
-      log(formatLogMessage(syllablesPerWord, totalSyllables));
+      debug(formatLogMessage(syllablesPerWord, totalSyllables));
     }
     return undefined;
   }
@@ -46,11 +51,11 @@ function takeNSyllablesFromList(list, n) {
     const sum = syllableCount + a.syllables.length;
     const newSentence = sentence.concat([a.word]);
 
-    if(sum < n) {
+    if (sum < n) {
       return recurse(rest, newSentence, sum);
-    } else if(sum == n){
+    } else if (sum == n) {
       return [newSentence, rest];
-    } else if(sum > n){
+    } else if (sum > n) {
       throw `Can't form a sentence with exactly ${n} syllables from these words`;
     }
   }
@@ -61,10 +66,10 @@ function takeNSyllablesFromList(list, n) {
 const emoji = /:.*:/;
 const punctuation = /(-|–|'|"|:|;)/;
 
-function getSyllables(word){
-  if(emoji.test(word)){
+function getSyllables(word) {
+  if (emoji.test(word)) {
     return { word: word, syllables: [word] };
-  } else if(punctuation.test(word)) {
+  } else if (punctuation.test(word)) {
     return { word: word, syllables: [] };
   } else {
     return { word: word, syllables: pseudoSyllables(word.replace(/[^A-Za-z\s]/g, '')) };
