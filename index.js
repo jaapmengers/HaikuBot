@@ -13,7 +13,7 @@ if (!token) {
 }
 
 const bot = controller.spawn({
-  token: token,
+  token,
 });
 
 const channelInfo = Promise.promisify(bot.api.channels.info);
