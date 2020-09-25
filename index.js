@@ -1,6 +1,6 @@
 const appInsights = require("applicationinsights");
 
-appInsights.start();
+appInsights.setup().start();
 
 const express = require("express");
 const app = express();
