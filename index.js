@@ -1,3 +1,7 @@
+const appInsights = require("applicationinsights");
+
+appInsights.start();
+
 const express = require("express");
 const app = express();
 const Botkit = require("botkit");
