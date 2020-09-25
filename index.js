@@ -4,7 +4,7 @@ const Botkit = require("botkit");
 const Promise = require("bluebird");
 const _ = require("underscore");
 const controller = Botkit.slackbot();
-const haiku = require('./haiku');
+const haiku = require("./haiku");
 
 const token = process.env.HAIKU_BOT_SECRET;
 
@@ -13,7 +13,7 @@ if (!token) {
 }
 
 const bot = controller.spawn({
-  token: token
+  token: token,
 });
 
 const channelInfo = Promise.promisify(bot.api.channels.info);
@@ -38,9 +38,9 @@ try {
         bot.reply(
           message,
           {
-            text: `>>>${formatMessage(possibleHaiku)}`,
+            text: `>>>${haiku.formatMessage(possibleHaiku)}`,
             username: "HaikuBot",
-            icon_emoji: ":writing_hand:"
+            icon_emoji: ":writing_hand:",
           },
           function (err, haikuMsg) {
             if (err) {
@@ -62,7 +62,7 @@ function addReaction(message) {
   bot.api.reactions.add({
     timestamp: message.ts,
     channel: message.channel,
-    name: "cherry_blossom"
+    name: "cherry_blossom",
   });
 }
 
@@ -70,7 +70,7 @@ function logSuccesfulHaiku(haikuMsg, originalMsg) {
   const userPromise = userInfo({ user: originalMsg.user });
   const channelPromise = channelInfo({ channel: haikuMsg.channel });
 
-  Promise.all([userPromise, channelPromise]).then(x => {
+  Promise.all([userPromise, channelPromise]).then((x) => {
     const messageId = haikuMsg.ts.replace(".", "");
     const link = `https://q42.slack.com/archives/${x[1].channel.name}/p${messageId}`;
 
@@ -85,7 +85,7 @@ function debug(msg) {
 function log(msg) {
   bot.say({
     text: msg,
-    channel: "C1CPAD96Z"
+    channel: "C1CPAD96Z",
   });
 }
 
