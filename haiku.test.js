@@ -44,4 +44,26 @@ invalidHaikus.forEach((haiku) => {
 
     expect(possibleHaiku).toBeUndefined();
   });
-})
+});
+
+describe(`Valid emojis`, () => {
+  const emojis = [
+    ":writing_hand:", ":cherry_blossom:", ":scream_cat:", 
+    ":1000-9138:", ":björkloven:", ":bitterballen-party:", ":aliensguy-8174:",
+    ":1337:", ":1337-pride:"
+  ];
+  it.each(emojis)("'%s' is a valid emoji", (emoji) => {
+    expect(haikubot.isEmoji(emoji)).toBeTruthy();
+  });
+});
+
+describe(`Invalid emojis`, () => {
+  const notEmojis = [
+    ":writing_hand", "writing_hand:", "writing_hand", "writing_hand", "writing_hand", "writing_hand",
+    "Hey: I thought.:", "What: is: this:?", "This is a sentence with a :emoji: in it", "This is a sentence with a :emoji: in it",
+    ":foo bar:", ":foo", "bar:", "Hello", "World", "word", "w0rd", "1234",
+  ];
+  it.each(notEmojis)("'%s' is not a valid emoji", (emoji) => {
+    expect(haikubot.isEmoji(emoji)).toBeFalsy();
+  });
+});

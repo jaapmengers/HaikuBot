@@ -63,11 +63,17 @@ function takeNSyllablesFromList(list, n) {
   return recurse(list, [], 0);
 }
 
-const emoji = /:.*:/;
+const accentedCharacters = "àèìòùÀÈÌÒÙáéíóúýÁÉÍÓÚÝâêîôûÂÊÎÔÛãñõÃÑÕäëïöüÿÄËÏÖÜŸçÇßØøÅåÆæœ";
+const slackEmoji = new RegExp("^:[\\w\\d-_" + accentedCharacters + "]+:$");
+const emoji = /^\p{Emoji}$/u;
 const punctuation = /(-|–|'|"|:|;)/;
 
+function isEmoji(word) {
+  return slackEmoji.test(word) || emoji.test(word);
+}
+
 function getSyllables(word) {
-  if (emoji.test(word)) {
+  if (isEmoji(word)) {
     return { word: word, syllables: [word] };
   } else if (punctuation.test(word)) {
     return { word: word, syllables: [] };
@@ -90,4 +96,5 @@ module.exports = {
   tryAndMakeHaiku: tryAndMakeHaiku,
   expandMessage: expandMessage,
   formatMessage: formatMessage,
+  isEmoji: isEmoji,
 };
