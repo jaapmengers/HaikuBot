@@ -12,7 +12,7 @@
   "dependencies": {
     "applicationinsights": "^1.8.7",
     "bluebird": "^3.7.2",
-    "botkit": "^0.7.6",
+    "botkit": "^4.15.0",
     "express": "^4.17.1",
     "jsonwebtoken": "^8.5.1",
     "underscore": "^1.11.0"
